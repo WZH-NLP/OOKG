@@ -623,7 +623,7 @@ def batch_by_size_softlabels(batch_size, data, aux_data, soft_labels):
 
     n = np.size(data, 0)
     n_aux = np.size(aux_data, 0)
-    # batch_num根据aux数据来取，因为aux长度是已知的，batch_size也好设置
+
     batch_num = int(n_aux / batch_size)
     batch_num = np.max((1, batch_num))
     batch_size_virtual = int(n / batch_num)
@@ -654,7 +654,6 @@ def negative_sampling_for_virtual_data(pos_samples, num_entity, negative_rate, t
     neg_samples[subj, 0] = values[subj]
     neg_samples[obj, 2] = values[obj]
 
-    # # 筛选negative samples， 防止有的negative samples存在于原图谱中
     # total_samples = [list(sample) for sample in total_samples]
     # neg_samples = [sample for sample in neg_samples if list(sample) not in total_samples]
     # len_neg = len(neg_samples)
@@ -680,7 +679,7 @@ def relabel_triples(triples, uniq_v):
     relabeled_triples = np.stack((src, rel, dst)).transpose()
     return relabeled_triples
 
-# 用来创建logger文件
+
 def timestamp():
     now = datetime.datetime.now()
     now_str = now.strftime("%Y%m%d%H%M")
@@ -896,23 +895,7 @@ def read_triplets(file_path, entity2id, relation2id):
 
 
 def check_rule(ground, pre1, pre2=None):
-    """判断ground所属的规则类型，以及其具体规则形式
 
-    Input
-    ----
-    ground: ndarray
-        推理出的三元组
-    pre1: ndarray
-        premise的第一项
-    pre2: ndarray
-        premise的第二项
-
-    Returns
-    ------
-    out: tuple
-        输出规则类型以及规则形式
-        输出形式：(rule_type, conclusion_rel, pre1_rel, pre2_rel)
-    """
     # one order rules
     if pre2 is None:
         if pre1[0] == ground[0] and pre1[2] == ground[2]:
@@ -928,22 +911,22 @@ def check_rule(ground, pre1, pre2=None):
         a_index = premise.index(a)
         b_index = premise.index(b)
 
-        # rules_chain1类型规则
+
         if a_index % 3 == 2 and b_index % 3 == 2:
             a_rel = int(premise[a_index - 1])
             b_rel = int(premise[b_index - 1])
             return ('chain1', cls_rel, a_rel, b_rel)
-        # rules_chain2类型规则
+
         elif a_index % 3 == 2 and b_index % 3 == 0:
             a_rel = int(premise[a_index - 1])
             b_rel = int(premise[b_index + 1])
             return ('chain2', cls_rel, a_rel, b_rel)
-        # rules_chain3类型规则
+ 
         elif a_index % 3 == 0 and b_index % 3 == 2:
             a_rel = int(premise[a_index + 1])
             b_rel = int(premise[b_index - 1])
             return ('chain3', cls_rel, a_rel, b_rel)
-        # rules_chain4类型规则
+
         elif a_index % 3 == 0 and b_index % 3 == 0:
             a_rel = int(premise[a_index + 1])
             b_rel = int(premise[b_index + 1])

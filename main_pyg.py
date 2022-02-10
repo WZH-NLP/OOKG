@@ -24,17 +24,13 @@ def train(known_labels, sample_triplets, model, use_cuda, split_size, negative_s
     return loss, train_data.entity, entity_embedding
 
 def get_batches(triples, labels, batch_size):
-    """ 这是一个生成器函数，按照n_batches的大小将数据划分了小块 """
     n_batches = len(triples) // batch_size
 
     for ii in range(0, n_batches * batch_size, batch_size):
-        # 如果不是最后一个batch，那么这个batch中应该有batch_size个数据
         if ii != (n_batches - 1) * batch_size:
             X, Y = triples[ii: ii + batch_size], labels[ii: ii + batch_size]
-            # 否则的话，那剩余的不够batch_size的数据都凑入到一个batch中
         else:
             X, Y = triples[ii:], labels[ii:]
-        # 生成器语法，返回X和Y
         yield X, Y
 
 def main(arg):

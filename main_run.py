@@ -247,7 +247,6 @@ def node_norm_to_edge_norm(g, node_norm):
     return g.edata['norm']
 
 
-# 程序入口
 def main(args):
 
     target_dir = os.path.join('./data', args.data, args.sub_data)
@@ -300,13 +299,10 @@ def main(args):
     two_hop_pre2 = np.array(two_hop_pre2)
     two_hop_ground = np.array(two_hop_ground)
 
-    # 获得每个ground triple 属于的规则形式和具体的规则
     one_hop_ground_rule = []
     two_hop_ground_rule = []
-    # 对于one hop 的ground：
     for ground, pre in zip(one_hop_ground, one_hop_pre):
         one_hop_ground_rule.append(check_rule(ground, pre))
-    # 对于two hop 的ground：
     for ground, pre1, pre2 in zip(two_hop_ground, two_hop_pre1, two_hop_pre2):
         two_hop_ground_rule.append(check_rule(ground, pre1, pre2))
     one_hop_ground_rule_set = set(one_hop_ground_rule)
@@ -396,7 +392,6 @@ def main(args):
     # training loop
     print("start training...")
 
-    # 1. 预训练aux数据
     ts = time.time()
     logger.info("\n\npretrain the aux triples...")
     if args.n_epochs_aux:
@@ -412,7 +407,6 @@ def main(args):
         torch.cuda.empty_cache()
     logger.info("Done pretrain aux triples. [%.1f s]" % (time.time() - ts))
 
-    # 如果预训练了,那么对其验证一下。
     if args.n_epochs_aux != 1:
         logger.info("\n\nTest for aux pretrained model")
         ts = time.time()
@@ -439,7 +433,6 @@ def main(args):
                     "| Hits_s(1, 3, 10) {} | Hits_o {} | Hits {} [{:.1f} s]".
                     format(mrr_s, mrr_o, mrr, hits_s, hits_o, hits, time.time() - ts))
 
-    # 2. 开始正式训练包含推理集合的数据
     print("----------------------------------------")
     print("Start to train the aux and virtual data")
     logger.info("\n\n Start to train the aux and inferred triples...")
@@ -449,8 +442,6 @@ def main(args):
         epoch += 1
         model.cuda()
 
-        # 构建图，进行relabel操作。
-        # 考虑yago数据的情况：
         if args.data == 'yago37':
             edges = sample_edge_uniform(train_data.shape[0], args.train_graph_size)
             train_graph = train_data[edges]
@@ -458,7 +449,6 @@ def main(args):
             train_graph = train_data
         vp_data = np.concatenate([virtual_data, aux_data, premise_data, train_graph])
 
-        # 对数据进行relabel，从而使得节点有连续的id
         src, rel, dst = vp_data.transpose()
         uniq_v, edges = np.unique((src, dst), return_inverse=True)
         src, dst = np.reshape(edges, (2, -1))
@@ -488,8 +478,6 @@ def main(args):
         edge_type, edge_norm = edge_type.cuda(), edge_norm.cuda()
         logger.info("Done build graph [%.1f s]" % (time.time() - ts))
 
-        # 计算规则置信度
-        # 加no_grad是为了计算软标签的时候不用bp，所以不保存计算图，节省gpu
         with torch.no_grad():
             rule_confidence = RuleConfidence(args, model.w_relation,
                                   one_hop_ground_rule, one_hop_ground_rule_set,
@@ -497,10 +485,8 @@ def main(args):
             one_hop_confidence = torch.stack(rule_confidence.get_confidence_for_one_hop_rule())
             two_hop_confidence = torch.stack(rule_confidence.get_confidence_for_two_hop_rule())
 
-            # 计算软标签值
-            # 先获得所有的embeddings
+
             embed = model(g, node_id, edge_type, edge_norm)
-            # 分别计算一跳和双跳实例的soft label
             if not args.hard_label:
                 one_hop_labels = get_soft_labels_for_one_hop(relabeled_one_hop_pre, relabeled_one_hop_ground, one_hop_confidence, args.penalty,
                                                          model, embed, args)
@@ -530,7 +516,6 @@ def main(args):
             print("Time cost: %4f" % (td - ts))
 
             # sampling
-            # 负采样
             samples, neg_labels = negative_sampling_for_virtual_data(np.concatenate([batch_virtual_data, batch_aux_data]), len(uniq_v), args.negative_sample)
             aux_labels = np.ones(len(batch_aux_data), dtype=np.float32)
             samples, neg_labels, aux_labels = torch.from_numpy(samples), torch.from_numpy(neg_labels), torch.from_numpy(aux_labels)
@@ -543,7 +528,6 @@ def main(args):
             labels = labels.cuda()
             samples = samples.cuda()
 
-            # # 尝试detach的效果
             # labels = labels.detach()
             loss = model.get_loss(embed, samples, labels)
 

@@ -19,7 +19,7 @@ def index_ent_rel(*filenames):
     ent_list = sorted(list(ent_set))
     rel_list = sorted(list(rel_set))
     rel_reverse_list = sorted(list(rel_reverse))
-    '''最后一列是列表个数,ent_id是字典，如'/m/0zq7r': 14535'''
+ 
     ent_id = dict(zip(ent_list, count()))
     rel_id = dict(zip(rel_list, count()))
     rel_size = len(rel_id)
@@ -130,7 +130,6 @@ def read_virtual_data_dict(filename, kb_index):
     lamda_dict_tail = {}
     lamda_dict = {}
     id = 0
-    # 每个ground三元组的对应依赖
     rule_ground_dict = {}
     with open(filename) as f:
         for ln in f:

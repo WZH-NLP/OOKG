@@ -16,7 +16,6 @@ class RuleConfidence():
 
     def get_confidence_for_one_hop_rule(self):
         rule2confidence = {}
-        # 统一计算某一种类型规则的置信度
         eq_rule = []
         inv_rule = []
         for rule in self.one_hop_ground_rule_set:
@@ -27,15 +26,13 @@ class RuleConfidence():
 
         identity = torch.cat((torch.ones(int(self.dim - self.dim / 4)), torch.zeros(int(self.dim / 4))), 0).unsqueeze(0).cuda()
 
-        # 算equivalent类型规则的置信度
         if len(eq_rule) != 0:
             eq_embeddings = self.rel_embeddings[torch.LongTensor(eq_rule)]
             equivalent_prob = self.sim(head=eq_embeddings[:, 0, :], tail=eq_embeddings[:, 1, :], arity=1)
-            # 获取规则到置信度的字典
             for prob, rule in zip(equivalent_prob, eq_rule):
                 rule2confidence[('eq', rule[0], rule[1])] = prob
 
-        # 算inverse的
+
         if len(inv_rule) != 0:
             inv_embeddings = self.rel_embeddings[torch.LongTensor(inv_rule)]
             inverse_prob = (self.sim(head=[inv_embeddings[:, 0, :], inv_embeddings[:, 1, :]],
@@ -45,7 +42,7 @@ class RuleConfidence():
             for prob, rule in zip(inverse_prob, inv_rule):
                 rule2confidence[('inv', rule[0], rule[1])] = prob
 
-        # 获得所有ground的规则置信度
+
         one_hop_confidence = []
         for rule in self.one_hop_ground_rule:
             one_hop_confidence.append(rule2confidence[rule])
@@ -54,7 +51,6 @@ class RuleConfidence():
 
     def get_confidence_for_two_hop_rule(self):
         rule2confidence = {}
-        # 统一计算某一种类型规则的置信度
         chain1_rule = []
         chain2_rule = []
         chain3_rule = []
@@ -71,13 +67,11 @@ class RuleConfidence():
 
         identity = torch.cat((torch.ones(int(self.dim - self.dim / 4)), torch.zeros(int(self.dim / 4))), 0).unsqueeze(0).cuda()
 
-        # 算equivalent类型规则的置信度
         if len(chain1_rule) != 0:
             chain1_embeddings = self.rel_embeddings[torch.LongTensor(chain1_rule)]
             chain1_prob = self.sim(
                 head=[chain1_embeddings[:, 1, :], chain1_embeddings[:, 0, :]],
                 tail=chain1_embeddings[:, 2, :], arity=2)
-            # 获取规则到置信度的字典
             for prob, rule in zip(chain1_prob, chain1_rule):
                 rule2confidence[('chain1', rule[0], rule[1], rule[2])] = prob
 
@@ -86,7 +80,6 @@ class RuleConfidence():
             chain2_prob = self.sim(
                 head=[chain2_embeddings[:, 2, :], chain2_embeddings[:, 1, :], chain2_embeddings[:, 0, :]],
                 tail=identity, arity=3)
-            # 获取规则到置信度的字典
             for prob, rule in zip(chain2_prob, chain2_rule):
                 rule2confidence[('chain2', rule[0], rule[1], rule[2])] = prob
 
@@ -95,7 +88,6 @@ class RuleConfidence():
             chain3_prob = self.sim(
                 head=[chain3_embeddings[:, 1, :], chain3_embeddings[:, 2, :]],
                 tail=chain3_embeddings[:, 0, :], arity=2)
-            # 获取规则到置信度的字典
             for prob, rule in zip(chain3_prob, chain3_rule):
                 rule2confidence[('chain3', rule[0], rule[1], rule[2])] = prob
 
@@ -104,11 +96,8 @@ class RuleConfidence():
             chain4_prob = self.sim(
                 head=[chain4_embeddings[:, 0, :], chain4_embeddings[:, 2, :]],
                 tail=chain4_embeddings[:, 1, :], arity=2)
-            # 获取规则到置信度的字典
             for prob, rule in zip(chain4_prob, chain4_rule):
                 rule2confidence[('chain4', rule[0], rule[1], rule[2])] = prob
-
-        # 获得所有ground的规则置信度
         two_hop_confidence = []
         for rule in self.two_hop_ground_rule:
             two_hop_confidence.append(rule2confidence[rule])
