@@ -1,1 +1,1 @@
-# TKDE22-OOKG
+OOKG
