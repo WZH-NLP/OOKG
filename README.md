@@ -1,1 +1,1 @@
-Codes for OOKG
+Codes for VNC
