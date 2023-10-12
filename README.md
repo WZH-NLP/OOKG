@@ -2,7 +2,14 @@
 This repo is a PyTorch implementation of "[Iteratively Learning Representations for Unseen Entities with Inter-Rule Correlations](https://arxiv.org/pdf/2305.10531.pdf)" (CIKM 2023).
 
 ## Introduction
+Current KGE methods for out-of-knowledge-graph (OOKG) entities still face two key challenges:
+1. Identifying inter-rule correlations to further facilitate the inference process;
+2. Capturing interactions among rule mining, rule inference, and embedding to enhance both rule and embedding learning.
 
+In this paper, 
+<div align=center>
+<img src="figures/framework.png" width="90%" height="90%">
+</div>
 
 ## Get started
 We list commands with different hyperparameters in ```run.sh```. For example, you can train and evaluate VNC with the following command:
