@@ -8,7 +8,7 @@ Current KGE methods for out-of-knowledge-graph (OOKG) entities still face two ke
 
 In this paper, we propose a virtual neighbor network with inter-rule correlations (VNC) to address the above challenges. VNC consists of three main components: (i) rule mining, (ii) rule inference, and (iii) embedding. To identify useful complex patterns in knowledge graphs, both logic rules and inter-rule correlations are extracted from knowledge graphs based on operations over relation embeddings. To reduce data sparsity, virtual networks for OOKG entities are predicted and assigned soft labels by optimizing a rule-constrained problem. We also devise an iterative framework to capture the underlying interactions between rule and embedding learning.
 <div align=center>
-<img src="figures/framework.png" width="90%" height="90%">
+<img src="framework.png" width="90%" height="90%">
 </div>
 
 ## Get started
