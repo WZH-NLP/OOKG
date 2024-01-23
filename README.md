@@ -18,7 +18,7 @@ We assess the performance of VNC for link prediction on publicly available datas
 </div>
 
 ## Get started
-We list commands with different hyperparameters in ```run.sh```. For example, you can train and evaluate VNC with the following command:
+Please note that we utilize Deep Graph Library (DGL) version 0.5.3. We list commands with different hyperparameters in ```run.sh```. For example, you can train and evaluate VNC with the following command:
 ```python
 python -u main_run.py --gpu 0 --penalty 0.5 --epochs 4000 --model "distmult" --embedding-dim 100 --evaluate-every 50  --data fb15k  --sub-data subject-10 --isSigmoid True  --n-bases 100  --batch-size 30000  --n_epochs_aux 200
 ```
